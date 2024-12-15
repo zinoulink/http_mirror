@@ -1,6 +1,6 @@
 use std::{
     io::{prelude::*, BufReader},
-    net::{TcpListener, TcpStream}
+    net::{TcpListener, TcpStream},
 };
 use threadpool::ThreadPool;
 
@@ -17,20 +17,19 @@ fn main() {
             handle_connection(stream);
         });
     }
-
 }
 
 fn handle_connection(mut stream: TcpStream) {
     let buf_reader = BufReader::new(&stream);
     let request_line = buf_reader.lines().next().unwrap().unwrap();
 
-    let status_line = "HTTP/1.1 200 OK";
+    let http_request = request_line.replace("GET ", "").replace(" HTTP/1.1", "");
 
-    let contents = request_line;
-    let length = contents.len();
+    let http_response = reqwest::blocking::get(format!("https://en.wikipedia.com{http_request}")).unwrap();
 
-    let response =
-        format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
 
-    stream.write_all(response.as_bytes()).unwrap();
+    let content: &[u8] = &http_response.bytes().unwrap();
+
+    stream.write_all(content).unwrap();
+    stream.flush().unwrap();
 }
