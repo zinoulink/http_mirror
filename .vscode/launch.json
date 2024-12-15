@@ -19,7 +19,9 @@
                     "kind": "bin"
                 }
             },
-            "args": [],
+            "args": [
+                "en.wikipedia.com"
+            ],
             "cwd": "${workspaceFolder}"
         },
         {
